@@ -55,7 +55,7 @@ Then read the installed README (see SKILL.md) and follow its current API for eve
 
 Then apply what is missing:
 
-1. **Initialize once** at the entry point, per the Init placement row.
+1. **Initialize once** at the entry point, per the Init placement row. Call `init()` without keys, host or project id so the SDK reads them from env. README examples pass placeholders such as `project_id="your-project-id"`; an explicit argument overrides env, so never copy them.
 2. **Instrument providers.** Node: call `instrument*` with the class the app imports. Python: providers are auto-detected at `init()`. Bedrock (Node): instrument the client instance if the app owns it, the class if a framework builds its own client.
 3. **Frameworks**: follow the README section for the detected framework so each agent run is one nested trace. LangChain callbacks only observe; enforcement comes from the instrumented model clients.
 4. **Tools**: MCP clients get the MCP instrumentation; LangChain tools (Node) get the tools subpath.
@@ -81,6 +81,7 @@ The work is not done when the code compiles. This loop is yours to own:
 | No trace | Keys or host missing; `init()` after first client use; exit before flush; wrong project |
 | No LLM step (Node) | A different module copy was instrumented than the one the app imports |
 | Duplicate LLM steps | Two `init()` calls, double instrumentation, or a second tracer |
+| Guardrails-disabled warning though `.env` has the project id | `init()` runs before `.env` is loaded, or a placeholder `project_id` is passed to `init()` |
 | Cost is 0 | Model name not in the price table; check the generation's model field |
 | Each turn is a new session | Session id missing or regenerated per request |
 | Several traces per agent run | Framework handler not linked to the request trace; see the README's single-trace pattern |
