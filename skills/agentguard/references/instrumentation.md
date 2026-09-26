@@ -69,7 +69,7 @@ For every change or fix, tell the user in one line what it enables (e.g. "sessio
 
 The work is not done when the code compiles. This loop is yours to own:
 
-1. Confirm credentials are set (presence only).
+1. Confirm credentials are set (presence only). If any are missing, follow Getting credentials in SKILL.md, wait for the user, then continue.
 2. Run the instrumented path once, using the app's start command or a one-off script that makes a real LLM call.
 3. Fetch the new trace via the public API (allow a few seconds for batching, or flush).
 4. Check it against **every** baseline row.
