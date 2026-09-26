@@ -1,0 +1,22 @@
+{
+  "name": "agentguard",
+  "displayName": "AgentGuard",
+  "version": "0.1.0",
+  "description": "Skills for integrating AgentGuard — the AI trust platform for observability, guardrails, quality and governance of LLM and agent applications.",
+  "author": {
+    "name": "Actaclad"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "agentguard",
+    "llm",
+    "observability",
+    "tracing",
+    "guardrails",
+    "ai-security",
+    "governance"
+  ],
+  "category": "developer-tools",
+  "logo": "assets/logo.png",
+  "skills": "./skills/"
+}

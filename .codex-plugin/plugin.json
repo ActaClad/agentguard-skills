@@ -1,0 +1,36 @@
+{
+  "name": "agentguard",
+  "version": "0.1.0",
+  "description": "Skills for integrating AgentGuard, the AI trust platform for observability, guardrails, quality and governance of LLM and agent applications.",
+  "author": {
+    "name": "Actaclad"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "agentguard",
+    "llm",
+    "observability",
+    "tracing",
+    "guardrails",
+    "ai-security",
+    "governance"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "AgentGuard",
+    "shortDescription": "Integrate AgentGuard tracing and guardrails into your app.",
+    "longDescription": "Detects your stack, installs or upgrades the AgentGuard SDK, instruments LLM and agent calls, verifies the first trace, and guides you through guardrails, quality, and governance.",
+    "developerName": "Actaclad",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Add AgentGuard to this app.",
+      "Check my existing AgentGuard integration and fix any gaps.",
+      "Which AgentGuard guardrails should I enable for this app?"
+    ],
+    "logo": "./assets/logo.png"
+  }
+}
