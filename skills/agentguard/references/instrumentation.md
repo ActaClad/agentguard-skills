@@ -51,7 +51,7 @@ Then read the installed README (see SKILL.md) and follow its current API for eve
 
 ## 3. Add or correct the code
 
-**Audit mode first**: fetch the project's recent traces from the public API and check them and the code against every baseline row. Report a table (requirement → met / gap → planned fix), fix only the gaps, and leave working code unchanged. Never add a second `init()`. If env files or config use legacy names (`AGENT_GUARD_*`, `AGENTGUARD_HOST`), rename them to the four `AGENTGUARD_*` names in the table in SKILL.md, keeping the values: edit names only and never print values. Not every code path reads the legacy names; for example, Python's `init()` ignores `AGENTGUARD_HOST` and falls back to localhost.
+**Audit mode first**: fetch the project's recent traces from the public API and check them and the code against every baseline row. Report a table (requirement → met / gap → planned fix), fix only the gaps, and leave working code unchanged. Never add a second `init()`. If env files or config use legacy names (`AGENT_GUARD_*`, `AGENTGUARD_HOST`), rename them to the four `AGENTGUARD_*` names in the table in SKILL.md, keeping the values: edit names only and never print values. Not every code path reads the legacy names; for example, Python's `init()` ignores `AGENTGUARD_HOST`.
 
 Then apply what is missing:
 
@@ -84,7 +84,7 @@ The work is not done when the code compiles. This loop is yours to own:
 | No LLM step (Node) | A different module copy was instrumented than the one the app imports |
 | Duplicate LLM steps | Two `init()` calls, double instrumentation, or a second tracer |
 | Guardrails-disabled warning though `.env` has the project id | `init()` runs before `.env` is loaded, or a placeholder `project_id` is passed to `init()` |
-| Warning `AGENTGUARD_BASE_URL not set`, or connection refused to `localhost:3001` (older SDKs) | `AGENTGUARD_BASE_URL` missing; the SDK sends nothing, or older versions try localhost. Set it in `.env` |
+| Warning `AGENTGUARD_BASE_URL not set` | `AGENTGUARD_BASE_URL` missing; the SDK sends nothing. Set it in `.env` |
 | DB, HTTP or RPC spans missing | Infra spans are dropped by default; set `AGENTGUARD_INCLUDE_INFRA_SPANS=true` if the user wants them |
 | Cost is 0 | Model name not in the price table; check the generation's model field |
 | Each turn is a new session | Session id missing or regenerated per request |
