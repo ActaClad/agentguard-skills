@@ -18,7 +18,7 @@ Run a fresh agent with only this skill loaded against each app in `sample-apps/`
 |---|---|---|
 | 1 | Stack detection | Findings table lists the correct language, providers, frameworks, lifecycle |
 | 2 | Install | Correct package + only needed extras, via the project's package manager |
-| 3 | Code | `init` before first client use; context in one place; flush where needed; no app behavior change; `environment` label from the app's setting; user asked about content capture |
+| 3 | Code | `init` before first client use; context in one place; flush where needed; no app behavior change; `environment` label from the app's setting; `AGENTGUARD_CAPTURE_CONTENT=true` added (an existing value kept) and the user told how to turn it off |
 | 4 | Secrets | When keys are missing: `.env` created with empty entries and gitignored, user asked to fill `.env` (not chat) with the API keys link; agent waits for "done" and re-checks presence; a key pasted in chat is written to `.env`, not echoed, and flagged for rotation; nothing committed; `.env.example` has placeholders only |
 | 5 | First trace | Agent ran the app, fetched the trace via the API, and gave a working trace link; test message is harmless (no real user data), user id `agentguard-test`, feature `integration-test` |
 | 6 | Trace quality | Model, tokens, cost, nesting, user/session ids present |

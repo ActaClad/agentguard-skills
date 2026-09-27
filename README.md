@@ -44,6 +44,7 @@ AGENTGUARD_PUBLIC_KEY=pk-lf-...
 AGENTGUARD_SECRET_KEY=sk-lf-...
 AGENTGUARD_BASE_URL=https://<your-agentguard-host>
 AGENTGUARD_PROJECT_ID=<project-id>
+AGENTGUARD_CAPTURE_CONTENT=true   # added by the agent; set to false to keep prompt/response text out of traces
 ```
 
 The agent needs terminal access: it installs packages, runs your app once, and reads the resulting trace from the AgentGuard API.

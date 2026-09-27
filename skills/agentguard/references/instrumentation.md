@@ -20,7 +20,7 @@ Every integration must meet all rows. Use this table to audit existing code (ste
 | Context | User id, session id, feature and tenant attached via `withPolicy` / `policy()` wherever the app has them | Sessions, Users and per-feature cost |
 | Guardrail readiness | `AGENTGUARD_PROJECT_ID` set; no `[agentguard]` warnings at startup | Without it guardrails are silently off |
 | Delivery | `flush()` before exit in scripts, jobs, serverless handlers and tests | Batched spans are lost otherwise |
-| Sensitive data | Content capture matches the user's choice (off by default); no secrets or raw PII in metadata or tags | Privacy default |
+| Content and sensitive data | `AGENTGUARD_CAPTURE_CONTENT=true` unless the user turned it off; no secrets or raw PII in metadata or tags | Traces show what was asked and answered; nothing sensitive in searchable fields |
 | Single integration | One `init()`, each provider instrumented once, no second tracer reporting the same calls | Duplicate spans double counts and cost |
 
 ## 1. Detect the stack and any existing integration
@@ -62,7 +62,7 @@ Then apply what is missing:
 5. **Context** at the request boundary with `withPolicy` / `policy()`, in one place.
 6. **Flush** where the Delivery row requires it.
 7. **Environment label**: pass `environment` to `init()` from the app's own setting (e.g. `NODE_ENV`, `APP_ENV`). It defaults to `production`, so local runs would be labelled production. It is only a label; recommend one AgentGuard project per environment.
-8. **Content capture**: prompt and response text are not recorded by default. Ask the user whether traces should show them; if yes, add `AGENTGUARD_CAPTURE_CONTENT=true`. Content is recorded after input guardrails run, and for streamed responses only the input is recorded.
+8. **Content capture**: the SDK records no prompt or response text by default. Add `AGENTGUARD_CAPTURE_CONTENT=true` to `.env` so traces show it, unless the variable already exists (keep an existing `false`). Tell the user it is on and that setting it to `false` turns it off, e.g. for regulated data. Content is recorded after input guardrails run; for streamed responses only the input is recorded.
 9. **Env template**: the four `AGENTGUARD_*` variables (plus any optional ones you added) with placeholders in `.env.example`; never real keys.
 
 For every change or fix, tell the user in one line what it enables (e.g. "session id: groups a conversation's turns in Sessions").
@@ -74,7 +74,7 @@ The work is not done when the code compiles. This loop is yours to own:
 1. Confirm credentials are set (presence only). If any are missing, follow Getting credentials in SKILL.md, wait for the user, then continue.
 2. Run the instrumented path once, using the app's start command or a one-off script that makes a real LLM call. Send one short, harmless test message that fits the app, e.g. "Hello, this is an AgentGuard integration test. What can you help me with?". Never use real user data, personal information or secrets. Set user id `agentguard-test` and feature `integration-test` so the test trace is easy to find and filter out later.
 3. Fetch the new trace via the public API (allow a few seconds for batching, or flush).
-4. Check it against **every** baseline row. With content capture off, missing input/output text is expected; tell the user why.
+4. Check it against **every** baseline row, including that the test message appears as input (streamed responses record input only). If the user turned content capture off, missing text is expected; tell them why.
 5. Fix each gap, re-run, re-fetch; repeat until all rows pass.
 6. Report what you audited, what you changed and why, and give the direct trace link. Invite the user to open it in the console.
 
