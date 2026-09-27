@@ -20,7 +20,7 @@ Every integration must meet all rows. Use this table to audit existing code (ste
 | Context | User id, session id, feature and tenant attached via `withPolicy` / `policy()` wherever the app has them | Sessions, Users and per-feature cost |
 | Guardrail readiness | `AGENTGUARD_PROJECT_ID` set; no `[agentguard]` warnings at startup | Without it guardrails are silently off |
 | Delivery | `flush()` before exit in scripts, jobs, serverless handlers and tests | Batched spans are lost otherwise |
-| Sensitive data | Content capture off unless the user opted in; no secrets or raw PII in metadata or tags | Privacy default |
+| Sensitive data | Content capture matches the user's choice (off by default); no secrets or raw PII in metadata or tags | Privacy default |
 | Single integration | One `init()`, each provider instrumented once, no second tracer reporting the same calls | Duplicate spans double counts and cost |
 
 ## 1. Detect the stack and any existing integration
@@ -51,17 +51,19 @@ Then read the installed README (see SKILL.md) and follow its current API for eve
 
 ## 3. Add or correct the code
 
-**Audit mode first**: fetch the project's recent traces from the public API and check them and the code against every baseline row. Report a table (requirement → met / gap → planned fix), fix only the gaps, and leave working code unchanged. Never add a second `init()`.
+**Audit mode first**: fetch the project's recent traces from the public API and check them and the code against every baseline row. Report a table (requirement → met / gap → planned fix), fix only the gaps, and leave working code unchanged. Never add a second `init()`. If env files or config use legacy names (`AGENT_GUARD_*`, `AGENTGUARD_HOST`), rename them to the four `AGENTGUARD_*` names in the table in SKILL.md, keeping the values: edit names only and never print values. Not every code path reads the legacy names; for example, Python's `init()` ignores `AGENTGUARD_HOST` and falls back to localhost.
 
 Then apply what is missing:
 
 1. **Initialize once** at the entry point, per the Init placement row. Call `init()` without keys, host or project id so the SDK reads them from env. README examples pass placeholders such as `project_id="your-project-id"`; an explicit argument overrides env, so never copy them.
-2. **Instrument providers.** Node: call `instrument*` with the class the app imports. Python: providers are auto-detected at `init()`. Bedrock (Node): instrument the client instance if the app owns it, the class if a framework builds its own client.
+2. **Instrument providers.** Node: call `instrument*` with the class the app imports. Python: providers are auto-detected at `init()`; for a provider with no auto-instrumentor, route calls through `agentguard.chat()` / `achat()` (LiteLLM) per the README. Bedrock (Node): instrument the client instance if the app owns it, the class if a framework builds its own client.
 3. **Frameworks**: follow the README section for the detected framework so each agent run is one nested trace. LangChain callbacks only observe; enforcement comes from the instrumented model clients.
 4. **Tools**: MCP clients get the MCP instrumentation; LangChain tools (Node) get the tools subpath.
 5. **Context** at the request boundary with `withPolicy` / `policy()`, in one place.
 6. **Flush** where the Delivery row requires it.
-7. **Env template**: the four `AGENTGUARD_*` variables with placeholders in `.env.example`; never real keys.
+7. **Environment label**: pass `environment` to `init()` from the app's own setting (e.g. `NODE_ENV`, `APP_ENV`). It defaults to `production`, so local runs would be labelled production. It is only a label; recommend one AgentGuard project per environment.
+8. **Content capture**: prompt and response text are not recorded by default. Ask the user whether traces should show them; if yes, add `AGENTGUARD_CAPTURE_CONTENT=true`. Content is recorded after input guardrails run, and for streamed responses only the input is recorded.
+9. **Env template**: the four `AGENTGUARD_*` variables (plus any optional ones you added) with placeholders in `.env.example`; never real keys.
 
 For every change or fix, tell the user in one line what it enables (e.g. "session id: groups a conversation's turns in Sessions").
 
@@ -72,7 +74,7 @@ The work is not done when the code compiles. This loop is yours to own:
 1. Confirm credentials are set (presence only). If any are missing, follow Getting credentials in SKILL.md, wait for the user, then continue.
 2. Run the instrumented path once, using the app's start command or a one-off script that makes a real LLM call.
 3. Fetch the new trace via the public API (allow a few seconds for batching, or flush).
-4. Check it against **every** baseline row.
+4. Check it against **every** baseline row. With content capture off, missing input/output text is expected; tell the user why.
 5. Fix each gap, re-run, re-fetch; repeat until all rows pass.
 6. Report what you audited, what you changed and why, and give the direct trace link. Invite the user to open it in the console.
 
@@ -82,6 +84,8 @@ The work is not done when the code compiles. This loop is yours to own:
 | No LLM step (Node) | A different module copy was instrumented than the one the app imports |
 | Duplicate LLM steps | Two `init()` calls, double instrumentation, or a second tracer |
 | Guardrails-disabled warning though `.env` has the project id | `init()` runs before `.env` is loaded, or a placeholder `project_id` is passed to `init()` |
+| Connection refused to `localhost:3001` | `AGENTGUARD_BASE_URL` missing; the SDK falls back to `http://localhost:3001` |
+| DB, HTTP or RPC spans missing | Infra spans are dropped by default; set `AGENTGUARD_INCLUDE_INFRA_SPANS=true` if the user wants them |
 | Cost is 0 | Model name not in the price table; check the generation's model field |
 | Each turn is a new session | Session id missing or regenerated per request |
 | Several traces per agent run | Framework handler not linked to the request trace; see the README's single-trace pattern |
