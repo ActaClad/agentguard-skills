@@ -72,7 +72,7 @@ For every change or fix, tell the user in one line what it enables (e.g. "sessio
 The work is not done when the code compiles. This loop is yours to own:
 
 1. Confirm credentials are set (presence only). If any are missing, follow Getting credentials in SKILL.md, wait for the user, then continue.
-2. Run the instrumented path once, using the app's start command or a one-off script that makes a real LLM call.
+2. Run the instrumented path once, using the app's start command or a one-off script that makes a real LLM call. Send one short, harmless test message that fits the app, e.g. "Hello, this is an AgentGuard integration test. What can you help me with?". Never use real user data, personal information or secrets. Set user id `agentguard-test` and feature `integration-test` so the test trace is easy to find and filter out later.
 3. Fetch the new trace via the public API (allow a few seconds for batching, or flush).
 4. Check it against **every** baseline row. With content capture off, missing input/output text is expected; tell the user why.
 5. Fix each gap, re-run, re-fetch; repeat until all rows pass.
@@ -84,7 +84,7 @@ The work is not done when the code compiles. This loop is yours to own:
 | No LLM step (Node) | A different module copy was instrumented than the one the app imports |
 | Duplicate LLM steps | Two `init()` calls, double instrumentation, or a second tracer |
 | Guardrails-disabled warning though `.env` has the project id | `init()` runs before `.env` is loaded, or a placeholder `project_id` is passed to `init()` |
-| Connection refused to `localhost:3001` | `AGENTGUARD_BASE_URL` missing; the SDK falls back to `http://localhost:3001` |
+| Warning `AGENTGUARD_BASE_URL not set`, or connection refused to `localhost:3001` (older SDKs) | `AGENTGUARD_BASE_URL` missing; the SDK sends nothing, or older versions try localhost. Set it in `.env` |
 | DB, HTTP or RPC spans missing | Infra spans are dropped by default; set `AGENTGUARD_INCLUDE_INFRA_SPANS=true` if the user wants them |
 | Cost is 0 | Model name not in the price table; check the generation's model field |
 | Each turn is a new session | Session id missing or regenerated per request |
