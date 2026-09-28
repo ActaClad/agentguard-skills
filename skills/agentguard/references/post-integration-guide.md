@@ -1,8 +1,3 @@
----
-name: agentguard-post-integration-guide
-description: After a verified first trace, guide the user through the AgentGuard console — Observability, AI Quality, Security and Governance — with recommendations tailored to their application.
----
-
 # After integration: guide the user
 
 Tailor this to the app you just instrumented. Recommend only what fits (e.g. PII redaction only if the app handles personal data) and explain each recommendation in one line. Give every console page as a full link: `<AGENTGUARD_BASE_URL>/project/<projectId>/<page>`.
@@ -31,7 +26,7 @@ Rollout advice to give:
 
 1. Start in observe mode and read a few days of findings before choosing redact or block.
 2. Before switching to block, make sure the app handles a block: catch `AgentGuardBlocked`, or set the on-block mode to refuse so callers get a safe refusal. Offer to add this handling.
-3. `prompt-injection`, `toxic-content` and `hallucination` are ML/LLM detectors and are opt-in in code: Node needs the ML guardrails registered after `init()` (native deps; gate behind `AGENTGUARD_ENABLE_ML_GUARDRAILS`), Python needs the `guardrails` extra. Without this they pass silently.
+3. Enabling a guardrail in the console is enough; `init()` wires every one of them. `pii-redaction`, `prompt-injection` and `toxic-content` are scored by the AgentGuard service, so they need no extra package, model or registration call in either SDK. `hallucination` is an LLM judge and needs a working provider key (Node's default judge uses `OPENAI_API_KEY`).
 4. Config changes reach running apps by polling — no redeploy.
 
 To check what the SDK actually receives, read `guardrails?projectId=` from the public API. Names like `secrets-token-scanner`, `allowlist`, `schema`, `hallucination-guard` are old names the SDK ignores; tell the user to switch to the current names.

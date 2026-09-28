@@ -1,8 +1,3 @@
----
-name: agentguard-instrumentation
-description: Integrate the AgentGuard SDK into an application, or audit and fix an existing integration — detect the stack, install or check the SDK, add or correct the code, and verify real traces against the baseline.
----
-
 # AgentGuard instrumentation
 
 ## Baseline requirements (mandatory)
@@ -49,7 +44,7 @@ For every ❌ call, tell the user it will not be traced or guarded and offer the
 
 ## 2. Install or check the SDK
 
-- **New integration**: Node `@actaclad/agentguard`; Python `actaclad-agentguard[<extras>]` with only the matching extras (`openai`, `anthropic`, `gemini`, `langchain`, `crewai`, `openai-agents`). Use the project's package manager.
+- **New integration**: Node `@actaclad/agentguard`; Python `actaclad-agentguard[<extras>]` with only the matching extras (`openai`, `anthropic`, `gemini`, `langchain`, `crewai`, `openai-agents`, `mcp`). Use the project's package manager.
 - **Audit mode**: do not reinstall from scratch. Confirm every detected provider and framework is covered by the installed peer deps or extras, then check the version:
   1. Compare the installed version (lockfile, `npm ls @actaclad/agentguard` / `pip show actaclad-agentguard`) with the latest (`npm view @actaclad/agentguard version` / `pip index versions actaclad-agentguard`).
   2. If installed is older, **upgrade to the latest** with the project's package manager and update the lockfile. Tell the user the old → new version.

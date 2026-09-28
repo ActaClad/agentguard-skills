@@ -1,7 +1,7 @@
 ---
 name: agentguard
 description: >-
-  Integrate the AgentGuard SDK into an AI application: detect the stack, install the right SDK, wire it in, verify the first trace, then guide the user through Observability, AI Quality, Security and Governance in the AgentGuard console. Use when the user wants to add AgentGuard, check an existing AgentGuard integration, trace or guard LLM/agent calls, or asks what to do after integrating.
+  Integrates the AgentGuard SDK into an AI application: detects the stack, installs the right SDK, wires it in, verifies the first trace, then guides the user through Observability, AI Quality, Security and Governance in the AgentGuard console. Use when the user wants to add AgentGuard, check an existing AgentGuard integration, trace or guard LLM/agent calls, or asks what to do after integrating.
 ---
 
 # AgentGuard
@@ -24,7 +24,7 @@ Both SDKs read the same variables:
 
 | Variable | Needed for |
 |---|---|
-| `AGENTGUARD_PUBLIC_KEY` (`pk-lf-…`), `AGENTGUARD_SECRET_KEY` (`sk-lf-…`) | Everything |
+| `AGENTGUARD_PUBLIC_KEY` (public key), `AGENTGUARD_SECRET_KEY` (secret key) | Everything |
 | `AGENTGUARD_BASE_URL` | Everything; the customer's own host, there is no shared default |
 | `AGENTGUARD_PROJECT_ID` | Required. Without it guardrails are silently off (tracing only, with a warning) |
 

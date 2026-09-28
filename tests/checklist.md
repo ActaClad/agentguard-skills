@@ -1,6 +1,6 @@
 # AgentGuard skill — test checklist
 
-Run a fresh agent with only this skill loaded against each app in `sample-apps/`. Record pass/fail per row.
+Run a fresh agent with only this skill loaded against each app in `tests/sample-apps/`, then repeat without the skill as a baseline. Record pass/fail per row in the run log below. Use harmless test input and the app's own test credentials; never commit `.env` files.
 
 ## Sample apps to build
 
@@ -11,6 +11,22 @@ Run a fresh agent with only this skill loaded against each app in `sample-apps/`
 | py-openai | Python + OpenAI | Auto-detect, extras, policy() context |
 | py-langchain | Python + LangChain agent | Framework tracing via the installed README |
 | node-existing-broken | Node + OpenAI, AgentGuard already integrated on an old SDK version (e.g. 2.0.0) with planted gaps: `init()` after client creation, second `init()`, no session id, no `flush()` in a script, one guardrail already enabled | Audit mode: no reinstall, finds and fixes each gap, leaves working code alone, reports existing guardrail |
+
+## Sample app locations
+
+- `sample-apps/node-openai/`
+- `sample-apps/py-openai/`
+- `sample-apps/node-existing-broken/`
+
+The sample source is a fixture, not a credentialed test run. Each scenario needs a fresh agent session, first with this skill alone and then without it. Run the app with valid credentials before marking criteria as passed. For `node-existing-broken`, configure one guardrail in the test project before starting the audit run.
+
+## Run log
+
+| App | Skill-only run | No-skill baseline | Notes |
+|---|---|---|---|
+| node-openai | Pending | Pending | Requires Node and AgentGuard/OpenAI test credentials |
+| py-openai | Pending | Pending | Requires Python and AgentGuard/OpenAI test credentials |
+| node-existing-broken | Pending | Pending | Requires Node and AgentGuard/OpenAI test credentials |
 
 ## Criteria
 

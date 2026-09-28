@@ -2,9 +2,9 @@
 
 ## Editing the skill
 
-- **Every line must earn its place.** Keep each reference at 100 lines or fewer, including frontmatter.
+- **Every line must earn its place.** Keep each reference at 100 lines or fewer.
 - **Never commit SDK code.** The skill tells the agent to read the installed SDK README, so code always matches the client's version. Pseudo-code for logic-specific bits is fine.
-- **Routing lives in exactly two places:** one line per reference in the `## Use case specific references` list in `SKILL.md`, and the reference file's frontmatter `description`.
+- **Routing lives only in `SKILL.md`:** one line per reference in its `## Use case specific references` list. Reference files have no frontmatter; under the Agent Skills spec only `SKILL.md` does.
 - **Check facts against the AgentGuard code** (SDK exports, console routes, API endpoints) before writing them. Console page paths come from `web/src/components/layouts/routes.tsx` in the AgentGuard repo.
 - After changing a skill, run the affected sample apps in `tests/checklist.md`.
 
