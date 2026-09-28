@@ -22,7 +22,7 @@ Recommend from what the code does:
 | Users send free text | `prompt-injection`, `toxic-content` |
 | Personal data in prompts or answers | `pii-redaction` |
 | Keys, tokens or credentials could appear | `secret-scanner`, `token-scanner` |
-| Agent calls tools | `tool-permission` (plus tool instrumentation from step 3.4 of instrumentation) |
+| Agent calls tools | `tool-permission` (plus tool instrumentation from step 3.3 of instrumentation) |
 | Cost or abuse risk | `budget-guard`, `rate-limit`, `token-limit`, `allowed-model-list` |
 | Structured output expected | `schema-validation` |
 | Answers grounded in provided context | `hallucination` (LLM judge, needs a provider key) |
