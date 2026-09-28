@@ -55,11 +55,11 @@ Then read the installed README (see SKILL.md) and follow its current API for eve
 
 Then apply what is missing:
 
-1. **Initialize once** at the entry point, per the Init placement row. Call `init()` without keys, host or project id so the SDK reads them from env. README examples pass placeholders such as `project_id="your-project-id"`; an explicit argument overrides env, so never copy them.
+1. **Initialize once** at the entry point, per the Init placement row. Call `init()` without keys, host or project id so the SDK reads them from env. README examples pass placeholders such as `project_id="your-project-id"`; an explicit argument overrides env, so never copy them. Write it as the README shows: a plain call, with no wrapper code such as env-var checks, conditional `init()` or try/except. Checking the keys is your job (Getting credentials in SKILL.md), not the app's; if a key is missing at runtime, the SDK warns and turns itself off.
 2. **Instrument providers.** Node: call `instrument*` with the class the app imports. Python: providers are auto-detected at `init()`; for a provider with no auto-instrumentor, route calls through `agentguard.chat()` / `achat()` (LiteLLM) per the README. Bedrock (Node): instrument the client instance if the app owns it, the class if a framework builds its own client.
 3. **Frameworks**: follow the README section for the detected framework so each agent run is one nested trace. LangChain callbacks only observe; enforcement comes from the instrumented model clients.
 4. **Tools**: MCP clients get the MCP instrumentation; LangChain tools (Node) get the tools subpath.
-5. **Context** at the request boundary with `withPolicy` / `policy()`, in one place.
+5. **Context** at the request boundary with `withPolicy` / `policy()`, in one place. Leave `fail` and `on_block` at their defaults unless the user asks; both change what happens when a guardrail blocks or errors.
 6. **Flush** where the Delivery row requires it.
 7. **Environment label**: pass `environment` to `init()` from the app's own setting (e.g. `NODE_ENV`, `APP_ENV`). It defaults to `production`, so local runs would be labelled production. It is only a label; recommend one AgentGuard project per environment.
 8. **Content capture**: the SDK records no prompt or response text by default. Add `AGENTGUARD_CAPTURE_CONTENT=true` to `.env` so traces show it, unless the variable already exists (keep an existing `false`). Tell the user it is on and that setting it to `false` turns it off, e.g. for regulated data. Content is recorded after input guardrails run; for streamed responses only the input is recorded.

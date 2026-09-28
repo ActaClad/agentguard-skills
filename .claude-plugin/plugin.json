@@ -1,7 +1,7 @@
 {
   "name": "agentguard",
   "description": "Skills for integrating AgentGuard, the AI trust platform for observability, guardrails, quality and governance of LLM and agent applications.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": {
     "name": "Actaclad"
   },
