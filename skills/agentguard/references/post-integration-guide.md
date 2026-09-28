@@ -26,7 +26,7 @@ Rollout advice to give:
 
 1. Start in observe mode and read a few days of findings before choosing redact or block.
 2. Before switching to block, make sure the app handles a block: catch `AgentGuardBlocked`, or set the on-block mode to refuse so callers get a safe refusal. Offer to add this handling.
-3. Enabling a guardrail in the console is enough; `init()` wires every one of them. `pii-redaction`, `prompt-injection` and `toxic-content` are scored by the AgentGuard service, so they need no extra package, model or registration call in either SDK. `hallucination` is an LLM judge and needs a working provider key (Node's default judge uses `OPENAI_API_KEY`).
+3. Enabling a guardrail in the console is enough; `init()` wires every one of them. `pii-redaction`, `prompt-injection` and `toxic-content` are scored by the AgentGuard service, so they need no extra package, model or registration call (Node SDK 3.0.0 or later; on 2.x they pass silently until `registerMlGuardrails()` runs after `init()`, so upgrade). `hallucination` is an LLM judge and needs a working provider key (Node's default judge uses `OPENAI_API_KEY`).
 4. Config changes reach running apps by polling — no redeploy.
 
 To check what the SDK actually receives, read `guardrails?projectId=` from the public API. Names like `secrets-token-scanner`, `allowlist`, `schema`, `hallucination-guard` are old names the SDK ignores; tell the user to switch to the current names.
