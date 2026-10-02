@@ -79,4 +79,4 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and our [Code 
 
 ## License
 
-[Apache License 2.0](LICENSE). Copyright (c) 2026 [ActaClad Innovations Private Limited](https://actaclad.com).
+[Apache License 2.0](LICENSE). Copyright (c) 2026 [ActaClad, Inc.](https://actaclad.com)
