@@ -3,8 +3,12 @@
   "version": "0.1.7",
   "description": "Skills for integrating AgentGuard, the AI trust platform for observability, guardrails, quality and governance of LLM and agent applications.",
   "author": {
-    "name": "Actaclad"
+    "name": "ActaClad",
+    "email": "harish.r@actaclad.com",
+    "url": "https://actaclad.com"
   },
+  "homepage": "https://actaclad.com",
+  "repository": "https://github.com/ActaClad/agentguard-skills",
   "license": "Apache-2.0",
   "keywords": [
     "agentguard",
@@ -20,7 +24,7 @@
     "displayName": "AgentGuard",
     "shortDescription": "Integrate AgentGuard tracing and guardrails into your app.",
     "longDescription": "Detects your stack, installs or upgrades the AgentGuard SDK, instruments LLM and agent calls, verifies the first trace, and guides you through guardrails, quality, and governance.",
-    "developerName": "Actaclad",
+    "developerName": "ActaClad",
     "category": "Developer Tools",
     "capabilities": [
       "Read",
@@ -31,6 +35,7 @@
       "Check my existing AgentGuard integration and fix any gaps.",
       "Which AgentGuard guardrails should I enable for this app?"
     ],
-    "logo": "./assets/logo.png"
+    "logo": "./assets/logo.png",
+    "websiteURL": "https://actaclad.com"
   }
 }

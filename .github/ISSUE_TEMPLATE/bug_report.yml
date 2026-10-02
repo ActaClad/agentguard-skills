@@ -1,0 +1,57 @@
+name: Bug report
+description: The skill gave wrong guidance or the agent did something unexpected.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please don't paste API keys, `.env` contents or customer data.
+        For security problems, follow SECURITY.md instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What the agent did, and which instruction in the skill led to it.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: The prompt you used and the app's stack (language, LLM provider, framework).
+      placeholder: |
+        1. Prompt: "Add AgentGuard to this app."
+        2. App: Python + FastAPI + OpenAI
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      description: '`version` in `.claude-plugin/plugin.json`.'
+      placeholder: "0.1.7"
+    validations:
+      required: true
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Coding agent
+      options:
+        - Claude Code
+        - Cursor
+        - Codex
+        - GitHub Copilot
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: sdk-version
+    attributes:
+      label: AgentGuard SDK and version
+      placeholder: "@actaclad/agentguard 3.3.0 / actaclad-agentguard 1.7.0"
