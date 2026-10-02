@@ -4,8 +4,12 @@
   "version": "0.1.7",
   "description": "Skills for integrating AgentGuard — the AI trust platform for observability, guardrails, quality and governance of LLM and agent applications.",
   "author": {
-    "name": "Actaclad"
+    "name": "ActaClad",
+    "email": "harish.r@actaclad.com",
+    "url": "https://actaclad.com"
   },
+  "homepage": "https://actaclad.com",
+  "repository": "https://github.com/ActaClad/agentguard-skills",
   "license": "Apache-2.0",
   "keywords": [
     "agentguard",

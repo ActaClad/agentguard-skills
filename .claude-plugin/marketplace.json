@@ -2,7 +2,8 @@
   "name": "agentguard",
   "description": "AgentGuard skills for AI coding agents.",
   "owner": {
-    "name": "Actaclad"
+    "name": "ActaClad",
+    "email": "harish.r@actaclad.com"
   },
   "plugins": [
     {
