@@ -38,7 +38,7 @@ You can also copy or symlink `skills/agentguard` into your agent's skills direct
 
 ## Requirements
 
-- **An application** in Node.js 20+ or Python 3.8+ that calls an LLM.
+- **An application** in Node.js 20+ or Python 3.9+ (3.10+ for the `[auto]` extra) that calls an LLM.
 - **An AgentGuard account and project.** The keys come from **Project Settings → API Keys** in the console.
 - **Your app's LLM provider key**, for example `OPENAI_API_KEY`. The agent runs your app once to produce the first trace.
 - **A coding agent with terminal access.** It installs packages, runs your app and reads the trace from the AgentGuard API.

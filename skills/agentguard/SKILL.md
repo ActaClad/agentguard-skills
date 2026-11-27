@@ -27,7 +27,7 @@ Both SDKs read the same variables:
 | Variable | Needed for |
 |---|---|
 | `AGENTGUARD_PUBLIC_KEY` (public key), `AGENTGUARD_SECRET_KEY` (secret key) | Everything |
-| `AGENTGUARD_BASE_URL` | Everything. AgentGuard Cloud: `https://app.agentguard.actaclad.com`. Self-hosted: the customer's own host. There is no default in code: if unset, the SDK silently sends to `http://localhost:3001` |
+| `AGENTGUARD_BASE_URL` | Everything. AgentGuard Cloud: `https://app.agentguard.actaclad.com`. Self-hosted: the customer's own host. If it and its legacy aliases are unset, the SDK falls back to `http://localhost:3001` with no startup warning |
 | `AGENTGUARD_PROJECT_ID` | Required. Without it guardrails are silently off (tracing only, with a warning) |
 
 The app's own LLM provider key (e.g. `OPENAI_API_KEY`) must also be set, or the first trace cannot be produced.
