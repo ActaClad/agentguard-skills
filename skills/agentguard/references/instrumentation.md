@@ -11,6 +11,7 @@ Every integration must meet all rows. Use this table to audit existing code (ste
 | Model and tokens | Each LLM step shows the model and input/output tokens | Model comparison and cost |
 | Cost | Billable models show non-zero cost | Spend views and budget guard depend on it |
 | Trace structure | One trace per request or agent run, steps nested, descriptive names (`checkout-assistant`, not defaults) | Shows which step failed; traces are findable |
+| Agent identity | Every trace carries a stable agent name (`init` `agent` option or `AGENTGUARD_AGENT`) | Agent views and per-agent guardrails depend on it |
 | Tool calls | Each tool call is its own step; MCP and LangChain tools are guarded, not only traced | Tool-permission guardrail and audit need them |
 | Context | User id, session id, feature and tenant attached via `withPolicy` / `policy()` wherever the app has them | Sessions, Users and per-feature cost |
 | Guardrail readiness | `AGENTGUARD_PROJECT_ID` set; no `[agentguard]` warnings at startup | Without it guardrails are silently off |
@@ -22,33 +23,36 @@ Every integration must meet all rows. Use this table to audit existing code (ste
 
 Read the code before proposing anything. Record:
 
-- **Language and package manager**: `package.json` + lockfile, or `pyproject.toml` / `requirements.txt`. Node needs ≥20.
+- **Language and package manager**: `package.json` + lockfile, or `pyproject.toml` / `requirements.txt`. Node needs ≥20, Python ≥3.8.
 - **LLM calls**: every provider and API the app calls, checked against the coverage table below.
-- **Agent frameworks**: LangChain/LangGraph, CrewAI, OpenAI Agents SDK, MCP, custom tool loops.
+- **Agent frameworks**: LangChain/LangGraph, CrewAI, OpenAI Agents SDK, Claude Agent SDK, MCP, custom tool loops.
 - **Lifecycle**: long-running server vs. script/job/serverless; where env vars are loaded.
 - **Request context available**: user id, session/conversation id, feature or route, tenant.
+- **Agent name**: the app's service or agent name (package name, service name, agent class); one per agent in multi-agent apps.
 - **Other tracing** (Langfuse, OpenTelemetry, …): never remove it without asking.
 - **Existing AgentGuard integration**: the SDK in dependencies, or `init()` / `withPolicy` / `policy()` / `instrument*` calls in code. If found, work in **audit mode** below.
+
+Coverage for Node SDK 3.5.0+ and Python SDK 1.10.0+ (on older versions, upgrade first):
 
 | LLM call | Python | Node |
 |---|---|---|
 | OpenAI Chat Completions (incl. Azure OpenAI) | ✅ automatic | ✅ `instrumentOpenAI` |
+| OpenAI Responses API; embeddings (traced only) | ✅ automatic | ❌ |
 | OpenAI audio (speech-to-text, text-to-speech) | ❌ | ✅ `instrumentOpenAI` |
-| OpenAI Responses API, embeddings | ❌ | check the README |
 | Anthropic (incl. Bedrock and Vertex clients) | ✅ automatic | ✅ `instrumentAnthropic` |
-| Gemini, `google-genai` SDK | ✅ automatic | ❌ |
-| AWS Bedrock runtime | ❌ raw `boto3` | ✅ `Converse` / `ConverseStream`; `InvokeModel` for Claude models only |
+| Gemini: `google-genai` / `@google/genai`, LangChain Google models | ✅ automatic | ✅ automatic at `init()`; `instrumentGemini` for ESM/bundlers (3.5.0+) |
+| AWS Bedrock runtime | ❌ raw `boto3` | ✅ `Converse` / `ConverseStream`; `InvokeModel` for Claude chat and Titan/Cohere embeddings |
 | Any other provider | ✅ only through `agentguard.chat()` (LiteLLM) | ❌ |
 
-For every ❌ call, tell the user it will not be traced or guarded and offer the fix: Python → route it through `agentguard.chat()`; Node Bedrock `InvokeModel` with a non-Claude model → switch to `Converse`. Never report such a call as covered. Then show the user a findings table (and in audit mode, which baseline rows look met) before editing.
+For every ❌ call, tell the user it will not be traced or guarded and offer the fix: Python → route it through `agentguard.chat()`; Node Responses → Chat Completions; Node Bedrock `InvokeModel` with another chat model → `Converse`. Never report such a call as covered. Then show the user a findings table (and in audit mode, which baseline rows look met) before editing.
 
 ## 2. Install or check the SDK
 
-- **New integration**: Node `@actaclad/agentguard`; Python `actaclad-agentguard[<extras>]` with only the matching extras (`openai`, `anthropic`, `gemini`, `langchain`, `crewai`, `openai-agents`, `mcp`). Use the project's package manager.
+- **New integration**: Node `@actaclad/agentguard` plus the subpath for each framework: `/langgraph`, `/bedrock`, `/mcp`, `/tools`, `/openai-agents`, `/claude-agent-sdk`. Python `actaclad-agentguard[<extras>]` with only the matching extras (`openai`, `anthropic`, `gemini`, `langchain`, `crewai`, `openai-agents`, `claude-agent-sdk`, `mcp`). Use the project's package manager.
 - **Audit mode**: do not reinstall from scratch. Confirm every detected provider and framework is covered by the installed peer deps or extras, then check the version:
   1. Compare the installed version (lockfile, `npm ls @actaclad/agentguard` / `pip show actaclad-agentguard`) with the latest (`npm view @actaclad/agentguard version` / `pip index versions actaclad-agentguard`).
   2. If installed is older, **upgrade to the latest** with the project's package manager and update the lockfile. Tell the user the old → new version.
-  3. Find what changed: read the changelog if the package ships one; otherwise compare the old and new README for every SDK call the app uses. A major version jump (e.g. 2.x → 3.x) means breaking changes are likely.
+  3. Find what changed: read the package's `CHANGELOG.md`, or compare the old and new README for every SDK call the app uses. A major version jump (e.g. 2.x → 3.x) means breaking changes are likely.
   4. Update every call the new version renamed, removed or changed. Step 4's run is then required to prove the upgrade broke nothing; if it cannot be made to pass, roll back to the old version and report why.
 
 Then read the installed README (see SKILL.md) and follow its current API for every step below.
@@ -59,14 +63,15 @@ Then read the installed README (see SKILL.md) and follow its current API for eve
 
 Then apply what is missing:
 
-1. **Initialize once** at the entry point, per the Init placement row. Call `init()` without keys, host or project id so the SDK reads them from env. README examples pass placeholders such as `project_id="your-project-id"`; an explicit argument overrides env, so never copy them. Write it as the README shows: a plain call, with no wrapper code such as env-var checks, conditional `init()` or try/except. Checking the keys is your job (Getting credentials in SKILL.md), not the app's; if a key is missing at runtime, the SDK warns and turns itself off.
-2. **Instrument providers.** Node: call `instrument*` with the class the app imports. Python: providers are auto-detected at `init()`; for a provider with no auto-instrumentor, route calls through `agentguard.chat()` / `achat()` (LiteLLM) per the README. Bedrock (Node): instrument the client instance if the app owns it, the class if a framework builds its own client.
-3. **Frameworks**: follow the README section for the detected framework so each agent run is one nested trace. LangChain callbacks only observe; enforcement comes from the instrumented model clients. **Tools**: MCP clients get the MCP instrumentation; LangChain tools (Node) get the tools subpath.
-4. **Context** at the request boundary with `withPolicy` / `policy()`, in one place. Leave `fail` and `on_block` at their defaults unless the user asks; both change what happens when a guardrail blocks or errors.
-5. **Flush** where the Delivery row requires it.
-6. **Environment label**: pass `environment` to `init()` from the app's own setting (e.g. `NODE_ENV`, `APP_ENV`). It defaults to `production`, so local runs would be labelled production. It is only a label; recommend one AgentGuard project per environment.
-7. **Content capture**: the SDK records no prompt or response text by default. Add `AGENTGUARD_CAPTURE_CONTENT=true` to `.env` so traces show it, unless the variable already exists (keep an existing `false`). Tell the user it is on and that setting it to `false` turns it off, e.g. for regulated data. Content is recorded after input guardrails run; for streamed responses only the input is recorded.
-8. **Env template**: the four `AGENTGUARD_*` variables (plus any optional ones you added) with placeholders in `.env.example`; never real keys.
+1. **Initialize once** at the entry point, per the Init placement row. Call `init()` without keys, host or project id so the SDK reads them from env. README examples pass placeholders such as `project_id="your-project-id"`; an explicit argument overrides env, so never copy them. Write it as the README shows: a plain call, with no wrapper code such as env-var checks, conditional `init()` or try/except. Checking the keys is your job (Getting credentials in SKILL.md), not the app's.
+2. **Agent identity**: pass a stable `agent` name to `init()` (e.g. `support-agent`), inferred from the app; if nothing names it, ask the user. In a multi-agent process, name each agent on its own run (`policy` / `withPolicy` / `startTrace` `agent`). Names with ids, timestamps or framework defaults (`Agent`, `LangGraph`) are ignored.
+3. **Instrument providers.** Node: call `instrument*` with the class the app imports. Python: providers are auto-detected at `init()`; for a provider with no auto-instrumentor, route calls through `agentguard.chat()` / `achat()` (LiteLLM) per the README. Bedrock (Node): instrument the client instance if the app owns it, the class if a framework builds its own client.
+4. **Frameworks**: follow the README section (or changelog) for the detected framework so each agent run is one nested trace. OpenAI Agents SDK: Node `/openai-agents` (`guardAgent` or `autoGuardOpenAIAgents`), Python `[openai-agents]`. Claude Agent SDK: `guardOptions` / `guard_options` on the agent's options (Node `/claude-agent-sdk`, Python `[claude-agent-sdk]`). LangChain callbacks only observe; enforcement comes from the instrumented model clients. **Tools**: MCP clients get the MCP instrumentation; LangChain tools (Node) get the tools subpath.
+5. **Context** at the request boundary with `withPolicy` / `policy()`, in one place. Leave `fail` and `on_block` at their defaults unless the user asks; both change what happens when a guardrail blocks or errors.
+6. **Flush** where the Delivery row requires it.
+7. **Environment label**: pass `environment` to `init()` from the app's own setting (e.g. `NODE_ENV`, `APP_ENV`). It defaults to `production`, so local runs would be labelled production. It is only a label; recommend one AgentGuard project per environment.
+8. **Content capture**: the SDK records no prompt or response text by default. Add `AGENTGUARD_CAPTURE_CONTENT=true` to `.env` unless the variable already exists (keep an existing `false`). Tell the user it is on and that `false` turns it off, e.g. for regulated data. Content is recorded after input guardrails run; for streamed responses only the input is recorded.
+9. **Env template**: the four `AGENTGUARD_*` variables (plus any optional ones you added) with placeholders in `.env.example`; never real keys.
 
 For every change or fix, tell the user in one line what it enables (e.g. "session id: groups a conversation's turns in Sessions").
 
@@ -82,14 +87,14 @@ The work is not done when the code compiles. This loop is yours to own:
 
 | Symptom | Likely cause |
 |---|---|
-| No trace | Keys or host missing; `init()` after first client use; exit before flush; wrong project |
+| No trace | Keys or host missing or wrong (Node logs `[agentguard]` 404 for a wrong host, 401/403 for wrong keys); `init()` after first client use; exit before flush; wrong project |
 | No LLM step (Node) | A different module copy was instrumented than the one the app imports |
 | Duplicate LLM steps | Two `init()` calls, double instrumentation, or a second tracer |
 | Guardrails-disabled warning though `.env` has the project id | `init()` runs before `.env` is loaded, or a placeholder `project_id` is passed to `init()` |
-| Warning `AGENTGUARD_BASE_URL not set` | `AGENTGUARD_BASE_URL` missing; the SDK sends nothing. Set it in `.env` |
+| No trace and no warning | `AGENTGUARD_BASE_URL` unset: traces go to `localhost:3001` silently. Check the variable is set, and that no stale `AGENTGUARD_HOST` remains |
 | DB, HTTP or RPC spans missing | Infra spans are dropped by default; set `AGENTGUARD_INCLUDE_INFRA_SPANS=true` if the user wants them |
-| Cost is 0 | Model name not in the price table; check the generation's model field |
 | Each turn is a new session | Session id missing or regenerated per request |
+| Cost is 0 | Model name not in the price table; check the generation's model field |
 | Several traces per agent run | Framework handler not linked to the request trace; see the README's single-trace pattern |
 
 Once all rows pass, continue with references/post-integration-guide.md.

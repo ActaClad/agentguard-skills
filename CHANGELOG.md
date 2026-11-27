@@ -4,9 +4,28 @@ All notable changes to the AgentGuard skill are documented here. The format is b
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-11-27
+
+### Added
+
+- Provider coverage rebuilt from the Node SDK 3.5.0 and Python SDK 1.10.0 changelogs: Node Gemini, Python OpenAI Responses API and Python OpenAI embeddings are now listed as supported.
+- Claude Agent SDK (Python extra `claude-agent-sdk`, Node subpath `/claude-agent-sdk`) and the Node `/openai-agents` subpath in the framework list and install steps.
+- Agent identity: the agent infers or asks for a stable agent name and sets it with the `init` `agent` option; a new baseline row checks it.
+- Guardrails `denied-topics`, `denied-words`, `execution-limit-guard` and `kill-switch` in the recommendations.
+- The skill states it covers SDK mode only, and ends by pointing the user to the docs and to Gardo (⌘I).
+- `.cursor-plugin/marketplace.json`, which Cursor's **From GitHub Repository** import needs.
+- Sample apps `node-gemini`, `node-langgraph-bedrock` and `py-langchain`; the run log targets Node 3.5.0 and Python 1.10.0.
+
 ### Changed
 
+- `AGENTGUARD_BASE_URL` defaults to AgentGuard Cloud (`https://app.agentguard.actaclad.com`); a self-hosted host is the other case. The agent pre-fills it in `.env`.
+- Install steps per coding agent are exact commands from each vendor's docs (README): Codex installs with `codex plugin add`, GitHub CLI needs 2.90.0+, Cursor installs from **Customize**.
 - Copyright holder is now ActaClad, Inc. (`LICENSE` and README). The license stays Apache-2.0.
+
+### Fixed
+
+- A missing `AGENTGUARD_BASE_URL` sends traces to `localhost:3001` silently; it does not warn or send nothing, as the troubleshooting table said.
+- `hallucination` runs through the app's own instrumented model client; Node falls back to `OPENAI_API_KEY` only when no instrumented client is available.
 
 ## [0.1.7] - 2026-09-29
 
@@ -86,4 +105,5 @@ All notable changes to the AgentGuard skill are documented here. The format is b
 - Content capture, environment label and legacy env-var handling.
 - Plugin manifests for Claude Code, Cursor and Codex.
 
+[0.1.8]: https://github.com/ActaClad/agentguard-skills/releases/tag/v0.1.8
 [0.1.7]: https://github.com/ActaClad/agentguard-skills/releases/tag/v0.1.7
