@@ -12,7 +12,7 @@ Agent Skills that teach AI coding assistants how to integrate [AgentGuard](https
 
 | Skill | Description |
 |---|---|
-| [agentguard](./skills/agentguard) | Detects your stack, installs or upgrades the AgentGuard SDK, instruments LLM and agent calls, verifies the first trace, then guides you through Security, Observability, AI Quality and Governance. |
+| [agentguard](./skills/agentguard) | Detects your stack, installs or upgrades the AgentGuard SDK, instruments LLM and agent calls, verifies the first trace, then guides you through Security, Observability, AI Quality and Governance. Covers SDK mode; for gateway mode see the gateway docs. |
 
 ## Quick start
 
@@ -29,16 +29,16 @@ The agent sets everything up. When it needs your keys, it stops and asks you (se
 | Agent | Install |
 |---|---|
 | Claude Code | `/plugin marketplace add ActaClad/agentguard-skills`, then `/plugin install agentguard@agentguard` |
-| Cursor | Install as a [Cursor plugin](https://cursor.com/docs/plugins) from this repo |
-| Codex | `codex plugin marketplace add ActaClad/agentguard-skills` |
-| GitHub Copilot and other CLIs | `gh skill install ActaClad/agentguard-skills agentguard` |
-| Any agent with skills support | `npx skills add ActaClad/agentguard-skills` |
+| Cursor | **Customize** in the sidebar → **From GitHub Repository** → `ActaClad/agentguard-skills`, then **Install** on AgentGuard |
+| Codex | `codex plugin marketplace add ActaClad/agentguard-skills`, then `codex plugin add agentguard@agentguard`; start a new session |
+| GitHub Copilot and other CLIs | `gh skill install ActaClad/agentguard-skills agentguard` (GitHub CLI 2.90.0+; add `--agent <name>` for another agent) |
+| Any agent with skills support | `npx skills add ActaClad/agentguard-skills --skill agentguard` |
 
 You can also copy or symlink `skills/agentguard` into your agent's skills directory (for Claude Code: `.claude/skills/` in a project, or `~/.claude/skills/` for all projects).
 
 ## Requirements
 
-- **An application** in Node.js 20+ or Python 3.8+ that calls an LLM.
+- **An application** in Node.js 20+ or Python 3.9+ (3.10+ for the `[auto]` extra) that calls an LLM.
 - **An AgentGuard account and project.** The keys come from **Project Settings → API Keys** in the console.
 - **Your app's LLM provider key**, for example `OPENAI_API_KEY`. The agent runs your app once to produce the first trace.
 - **A coding agent with terminal access.** It installs packages, runs your app and reads the trace from the AgentGuard API.
@@ -48,7 +48,7 @@ You don't need to set up the keys in advance. When they're missing, the agent cr
 ```bash
 AGENTGUARD_PUBLIC_KEY=<public-key>
 AGENTGUARD_SECRET_KEY=<secret-key>
-AGENTGUARD_BASE_URL=https://<your-agentguard-host>
+AGENTGUARD_BASE_URL=https://app.agentguard.actaclad.com   # AgentGuard Cloud; self-hosted: your own host
 AGENTGUARD_PROJECT_ID=<project-id>
 AGENTGUARD_CAPTURE_CONTENT=true   # added by the agent; set to false to keep prompt/response text out of traces
 ```
@@ -69,7 +69,7 @@ The skill contains instructions only; it ships no scripts or servers. When you u
 - installs the AgentGuard SDK with your project's package manager, and checks the latest version on npm or PyPI;
 - creates or updates `.env` with empty AgentGuard entries, and adds `.env` to `.gitignore`;
 - runs your app once with a harmless test message, which calls your LLM provider as your app normally does;
-- calls your own AgentGuard host's public API with the keys from `.env` to read the resulting trace and your project's guardrail configuration.
+- calls your AgentGuard host's public API (AgentGuard Cloud or your self-hosted host) with the keys from `.env` to read the resulting trace and your project's guardrail configuration.
 
 Nothing is sent anywhere else. Key values are never printed, committed or requested in the chat.
 

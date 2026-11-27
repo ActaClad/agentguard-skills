@@ -21,12 +21,16 @@ Recommend from what the code does:
 | Cost or abuse risk | `budget-guard`, `rate-limit`, `token-limit`, `allowed-model-list` |
 | Structured output expected | `schema-validation` |
 | Answers grounded in provided context | `hallucination` (LLM judge, needs a provider key) |
+| Subjects the app must not discuss | `denied-topics`: blocks subjects by meaning, so rephrasings are caught (Node 3.3.0+ / Python 1.8.0+) |
+| Exact words to stop (competitor names, project codes, profanity) | `denied-words`: blocks, masks or flags exact matches, in-process (same versions) |
+| Agent loops or fans out tool calls | `execution-limit-guard`: caps tool calls, model calls, fan-out, repeated intent and duration per run |
+| Any production app | `kill-switch`: blocks every model call in the project (or one agent) at once; the SDK checks it every 10 seconds |
 
 Rollout advice to give:
 
 1. Start in observe mode and read a few days of findings before choosing redact or block.
 2. Before switching to block, make sure the app handles a block: catch `AgentGuardBlocked`, or set the on-block mode to refuse so callers get a safe refusal. Offer to add this handling.
-3. Enabling a guardrail in the console is enough; `init()` wires every one of them. `pii-redaction`, `prompt-injection` and `toxic-content` are scored by the AgentGuard service, so they need no extra package, model or registration call on Python SDK 1.6.0+ or Node SDK 3.0.0+. Do not install the Python `[guardrails]` extra for them. On older versions (Node 2.x needs `registerMlGuardrails()` after `init()`), upgrade instead. `hallucination` is an LLM judge and needs a working provider key (Node's default judge uses `OPENAI_API_KEY`).
+3. Enabling a guardrail in the console is enough; `init()` wires every one of them. `pii-redaction`, `prompt-injection` and `toxic-content` are scored by the AgentGuard service, so they need no extra package, model or registration call on Python SDK 1.6.0+ or Node SDK 3.0.0+. Do not install the Python `[guardrails]` extra for them. On older versions (Node 2.x needs `registerMlGuardrails()` after `init()`), upgrade instead. `hallucination` is an LLM judge that runs through the app's own instrumented model client, so that provider's key must work; on Node, with no instrumented client it falls back to `OPENAI_API_KEY`.
 4. Config changes reach running apps by polling — no redeploy.
 
 To check what the SDK actually receives, read `guardrails?projectId=` from the public API. Names like `secrets-token-scanner`, `allowlist`, `schema`, `hallucination-guard` are old names the SDK ignores; tell the user to switch to the current names.

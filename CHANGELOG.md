@@ -4,9 +4,30 @@ All notable changes to the AgentGuard skill are documented here. The format is b
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-11-27
+
+### Added
+
+- Node OpenAI Agents SDK: model calls are covered only through Chat Completions; on its default Responses API only tool and agent checks apply.
+- Provider coverage rebuilt from the Node SDK 3.5.0 and Python SDK 1.10.0 changelogs: Node Gemini, Python OpenAI Responses API (guarded) and Python OpenAI embeddings (traced only) are now listed as supported.
+- Claude Agent SDK (Python extra `claude-agent-sdk`, Node subpath `/claude-agent-sdk`) and the Node `/openai-agents` subpath in the framework list and install steps.
+- Agent identity: the agent infers or asks for a stable agent name and sets it with the `init` `agent` option; a new baseline row checks it. Generic names and names with per-request ids are ignored; a framework name the user passes (`langgraph`, `crew`) is kept.
+- Guardrails `denied-topics`, `denied-words`, `execution-limit-guard` and `kill-switch` in the recommendations.
+- The skill states it covers SDK mode only, and ends by pointing the user to the docs and to Gardo (⌘I).
+- `.cursor-plugin/marketplace.json`, which Cursor's **From GitHub Repository** import needs.
+- Sample apps `node-gemini`, `node-langgraph-bedrock` and `py-langchain`; the run log targets Node 3.5.0 and Python 1.10.0.
+
 ### Changed
 
+- `AGENTGUARD_BASE_URL` defaults to AgentGuard Cloud (`https://app.agentguard.actaclad.com`); a self-hosted host is the other case. The agent pre-fills it in `.env`.
+- Install steps per coding agent are exact commands from each vendor's docs (README): Codex installs with `codex plugin add`, GitHub CLI needs 2.90.0+, Cursor installs from **Customize**.
 - Copyright holder is now ActaClad, Inc. (`LICENSE` and README). The license stays Apache-2.0.
+
+### Fixed
+
+- A missing `AGENTGUARD_BASE_URL` sends traces to `localhost:3001`, not nowhere, as the troubleshooting table said. There is no startup warning; Node 3.5.0+ logs `server unreachable` on flush.
+- Python minimum is 3.9 (3.10 for the `[auto]` extra): the SDK's `opentelemetry-api>=1.35` dependency has no 3.8 build.
+- `hallucination` runs through the app's own instrumented model client; Node falls back to `OPENAI_API_KEY` only when no instrumented client is available.
 
 ## [0.1.7] - 2026-09-29
 
@@ -86,4 +107,5 @@ All notable changes to the AgentGuard skill are documented here. The format is b
 - Content capture, environment label and legacy env-var handling.
 - Plugin manifests for Claude Code, Cursor and Codex.
 
+[0.1.8]: https://github.com/ActaClad/agentguard-skills/releases/tag/v0.1.8
 [0.1.7]: https://github.com/ActaClad/agentguard-skills/releases/tag/v0.1.7

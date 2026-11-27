@@ -1,0 +1,15 @@
+{
+  "name": "agentguard",
+  "description": "AgentGuard skills for AI coding agents.",
+  "owner": {
+    "name": "ActaClad",
+    "email": "info@actaclad.com"
+  },
+  "plugins": [
+    {
+      "name": "agentguard",
+      "source": "./",
+      "description": "Integrate the AgentGuard SDK, verify the first trace, and set up guardrails, quality and governance."
+    }
+  ]
+}
